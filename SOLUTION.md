@@ -18,3 +18,7 @@
 ### Task 6
 * Impressed with the .Any and the fact that I don't need to pass the userId into the closure
 
+### Task 7
+* Added the new migration using `dotnet ef migrations add AddRankToTodoItem --project=Todo` and updated the database
+* Used js to manipulate the DOM
+

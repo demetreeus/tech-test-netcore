@@ -11,13 +11,14 @@
 
 <div class="col-md-6">
 
-    <ul class="list-group">
+    <ul class="list-group-header">
 
         <li class="list-group-item">
             <div>
                 <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
                     <strong>Add New Item</strong>
                 </a>
+
 
                 <div class="pull-right">
                     <input id="toggleDone" type="checkbox" value="false" />
@@ -26,6 +27,27 @@
             </div>
         </li>
 
+        <li class="list-group-item list-group-items-header"
+            >
+                
+                <div class="row">
+
+                <div class="col-md-6">
+                    Title
+                </div>
+
+                <div id="rankOrderSwitch" class="col-md-2">
+                    <b><span id="rankOrderIcon">-</span></b> Rank
+                </div>
+
+                <div class="col-md-4 text-right">
+                    Responsible Party
+                </div>
+                </div>
+
+        </li>
+    </ul>
+    <ul id="list-group" class="list-group">
         @foreach (var item in Model.Items.OrderBy(it => it.Importance))
         {
             string contextualClass;
@@ -44,11 +66,12 @@
 
             <li class="list-group-item @contextualClass" 
                 @(item.IsDone ? "data-done=1" : "data-done=0")
+                data-rank="@item.Rank"
             >
                 
                 <div class="row">
 
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <a asp-action="Edit" asp-controller="TodoItem" asp-route-todoItemId="@item.TodoItemId">
 
                         @if (item.IsDone)
@@ -60,6 +83,10 @@
                             <text>@item.Title</text>
                         }
                     </a>
+                </div>
+
+                <div class="col-md-2">
+                    @item.Rank
                 </div>
 
                 <div class="col-md-4 text-right">
@@ -77,11 +104,120 @@
     </ul>
 </div>
 
-@* toggle done items *@
 <script>
+    // toggle completed items
     document.getElementById('toggleDone').addEventListener('click', function() {
         document.querySelectorAll('.list-group-item[data-done="1"]').forEach(function(item) {
             item.classList.toggle('hidden');
         });
     });
+
+    // change rank order
+    var rankOrderStates = {
+        default: {
+            icon: '-'
+        },
+        asc: {
+            icon: '↑'
+        },
+        desc: {
+            icon: '↓',
+        }
+    }
+
+    var currentRankOrderIndex = 0;
+
+    var randOrderSequence = ["default", "asc", "desc"];
+
+    @* Add event listener to the rand switch *@
+    document.getElementById('rankOrderSwitch').addEventListener('click', function() {
+        switchRankOrder();
+    });
+
+    @* Switch rank order *@
+    function switchRankOrder() {
+        @* determine the next order *@
+        switch (randOrderSequence[getNextRankOrder()]) {
+            case "asc":
+                rankAsceding();
+                break;
+            case "desc":
+                rankDesceding();
+                break;
+            default:
+                // reload the window to get the default order
+                location.reload();
+        }
+
+        // set the icon
+        var icon = document.getElementById("rankOrderIcon").innerHTML = rankOrderStates[randOrderSequence[currentRankOrderIndex]].icon;
+    }
+
+    function getNextRankOrder() {
+        if ( (currentRankOrderIndex + 1) > randOrderSequence.length) {
+            return 0;
+        } 
+
+        currentRankOrderIndex++;
+
+        return currentRankOrderIndex;
+    }
+
+    function rankAsceding() {
+        orderItems("asc");
+    }
+
+    function rankDesceding() {
+        orderItems("desc");
+    }
+
+    function orderItems(order) {
+        var wrapper = document.getElementById('list-group');
+        var items = wrapper.children;
+        var newItems = [];
+        // construct an object containing the rank and the elements for each item
+        for (let i = 0; i < items.length; i++) {
+             newItems.push({
+                rank: items[i].getAttribute('data-rank'),
+                element: items[i]
+            })
+        }
+
+        if (order === "asc") {
+            newItems.sort(compareAsc)
+            
+        } else {
+            newItems.sort(compareDesc)
+        }
+
+        // reset the html of the wrapper
+        wrapper.innerHTML = "";
+
+        // append new children
+        for (let i = 0; i < newItems.length; i++) {
+            wrapper.appendChild(newItems[i].element);
+        }
+    }
+
+    function compareAsc( a, b ) {
+        if ( a.rank < b.rank ){
+            return -1;
+        }
+        if ( a.rank > b.rank ){
+            return 1;
+        }
+
+        return 0;
+    }
+
+    function compareDesc( a, b ) {
+        if ( a.rank < b.rank ){
+            return 1;
+        }
+        if ( a.rank > b.rank ){
+            return -1;
+        }
+
+        return 0;
+    }
 </script>
