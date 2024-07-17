@@ -5,3 +5,6 @@
 
 ### Task 2
 * I assumed enums are treated as integers internally, happy to confirm.
+
+### Task 3
+* Seemed too easy to change the label in 2 view files, went with data annotation in the form models. To avoid repeating I also tried to add to the entity, it didn't work at first, decided to move on with other tasks.
