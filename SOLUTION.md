@@ -8,3 +8,8 @@
 
 ### Task 3
 * Seemed too easy to change the label in 2 view files, went with data annotation in the form models. To avoid repeating I also tried to add to the entity, it didn't work at first, decided to move on with other tasks.
+
+### Task 4
+* Decided to go with a simple js approach, which saves us server resources. Note to myself to get familiar with the SSR candies though.
+
+
